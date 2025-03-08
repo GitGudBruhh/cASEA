@@ -98,7 +98,7 @@ def test_lexer():
 
     for i, input_string in enumerate(test_cases):
         print(f"Test case {i + 1}: Input: '{input_string}'")
-        lexer = Lexer(dfas, input_string)
+        lexer = DFALexer(dfas, input_string)
         try:
             lexer.tokenize()
             tokens = lexer.get_tokens()

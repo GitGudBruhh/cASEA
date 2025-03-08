@@ -56,17 +56,21 @@ def first(cfg):
                     logging.debug(f'[PRPG] Added {non_term} to FIRST({head})')
                     is_terminal_added = True
 
+            logging.debug(f'returning {is_terminal_added, is_epsilon_possible}')
+
             return (is_terminal_added, is_epsilon_possible)
 
         elif symb in cfg.T:
             if symb in first_sets[head]:
+                logging.debug(f'returning F, F')
                 return (False, False)
             else:
                 first_sets[head].add(symb)
                 logging.debug(f'[PRPG] Added {symb} to FIRST({head})')
+                logging.debug(f'returning T, F')
                 return (True, False)
 
-        elif symb != '#':
+        else:
             raise Exception(f'Unknown symbol {symb}')
 
     def propagate(first_sets, cfg, head, tail):
