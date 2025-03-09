@@ -40,7 +40,7 @@ This is a paragraph with **bold text** and *italic text*.
 ```
 
 # Documentation Build Instructions
-1. Run the following commant from the root of the directory. This reads docstrings from python modules in `src/` to autogenerate `.rst` files in the `doc_src/` directory.
+1. Run the following command from the root of the project directory. This command reads docstrings from python modules in `src/` to autogenerate `.rst` files in the `doc_src/` directory.
 ```
 sphinx-apidoc -o ./doc_src/ ./doc_src/../src
 ```
