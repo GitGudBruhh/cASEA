@@ -11,7 +11,7 @@ cfgs = [
             "T": ["F", "TF"],
             "F": ["0", "1", "(R)", "F*", "F+"]
         },
-        "terminals": ["0", "1", "(", ")", "*", "+"],
+        "terminals": ["#", "0", "1", "(", ")", "*", "+"],
         "start_symbol": "R"
     },
     {
@@ -21,7 +21,7 @@ cfgs = [
             "T": ["T*F", "T/F", "F"],
             "F": ["(E)", "i"]
         },
-        "terminals": ["+", "-", "*", "/", "(", ")", "i"],
+        "terminals": ["#", "+", "-", "*", "/", "(", ")", "i"],
         "start_symbol": "E"
     },
     {
@@ -31,7 +31,7 @@ cfgs = [
             "A": ["!F", "F"],
             "F": ["T", "F", "(B)"]
         },
-        "terminals": ["&", "|", "!", "T", "F", "(", ")"],
+        "terminals": ["#", "&", "|", "!", "T", "F", "(", ")"],
         "start_symbol": "B"
     },
     {
@@ -40,7 +40,7 @@ cfgs = [
             "S": ["iEtS", "iEtSeS", "pE", "#"],
             "E": ["i", "n"]
         },
-        "terminals": ["i", "n", "t", "e", "p"],
+        "terminals": ["#", "i", "n", "t", "e", "p"],
         "start_symbol": "S"
     },
     {
@@ -50,7 +50,7 @@ cfgs = [
             "R": ["i", "R,i"],
             "E": ["i", "n"]
         },
-        "terminals": ["[", "]", "f", "i", ",", "n"],
+        "terminals": ["#", "[", "]", "f", "i", ",", "n"],
         "start_symbol": "L"
     },
     {
@@ -61,7 +61,7 @@ cfgs = [
             "C": ["D", "D#"],
             "D": ["d", "e"]
         },
-        "terminals": ["d", "e"],
+        "terminals": ["#", "d", "e"],
         "start_symbol": "A"
     },
     {
@@ -71,7 +71,7 @@ cfgs = [
             "Y": ["(X)", "X)"],
             "Z": ["z", "Z#"]
         },
-        "terminals": ["(", ")", "z"],
+        "terminals": ["#", "(", ")", "z"],
         "start_symbol": "X"
     },
     {
@@ -81,7 +81,7 @@ cfgs = [
             "A": ["a"],
             "B": ["b"]
         },
-        "terminals": ["a", "b", "|"],
+        "terminals": ["#", "a", "b", "|"],
         "start_symbol": "C"
     },
     {
@@ -90,7 +90,7 @@ cfgs = [
             "R": ["A*", "A#"],
             "A": ["a", "b"]
         },
-        "terminals": ["a", "b", "*"],
+        "terminals": ["#", "a", "b", "*"],
         "start_symbol": "R"
     },
     {
@@ -99,7 +99,19 @@ cfgs = [
             "E": ["E+E", "E*E", "E#"],
             "T": ["(E)", "i"]
         },
-        "terminals": ["+", "*", "(", ")", "i"],
+        "terminals": ["#", "+", "*", "(", ")", "i"],
+        "start_symbol": "E"
+    },
+    {
+        "name": "All Epsilon",
+        "productions": {
+            "E": ["ABC"],
+            "A": ["AX", "a", "#"],
+            "B": ["BX", "b", "#"],
+            "C": ["CX", "c", "#"],
+            "X": ["XX", "x", "#"],
+        },
+        "terminals": ["#", "a", "b", "c", "x"],
         "start_symbol": "E"
     }
 ]

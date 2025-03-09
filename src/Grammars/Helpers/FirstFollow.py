@@ -1,6 +1,5 @@
 from Grammars.CFG import CFG
 from typing import Dict, List, Set
-
 import logging
 
 # Configure logging
@@ -28,8 +27,9 @@ def first(cfg):
         :param cfg: A CFG object containing the production rules.
         """
         for head, tails in cfg.P.items():
-            for tail in tails:
-                symbol = tail[0]
+            for tail_string in tails:
+                # TOOD: tail should not be assumed to have single letter V and T
+                symbol = tail_string[0]
                 if symbol in cfg.T:
                     first_sets[head].add(symbol)
                     logging.debug(f'[INIT] Added {symbol} to FIRST({head})')
@@ -56,18 +56,14 @@ def first(cfg):
                     logging.debug(f'[PRPG] Added {non_term} to FIRST({head})')
                     is_terminal_added = True
 
-            logging.debug(f'returning {is_terminal_added, is_epsilon_possible}')
-
             return (is_terminal_added, is_epsilon_possible)
 
         elif symb in cfg.T:
             if symb in first_sets[head]:
-                logging.debug(f'returning F, F')
                 return (False, False)
             else:
                 first_sets[head].add(symb)
                 logging.debug(f'[PRPG] Added {symb} to FIRST({head})')
-                logging.debug(f'returning T, F')
                 return (True, False)
 
         else:

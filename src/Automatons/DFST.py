@@ -1,5 +1,13 @@
 from typing import Dict, Set, Tuple, List
 from Automatons.DFA import DFA
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,   # Set the log level
+    format='%(message)s'  # Log message format
+)
+
 
 class DFST(DFA):
     def __init__(self, Q: Set[int],
@@ -22,8 +30,7 @@ class DFST(DFA):
         if symbol in self.delta[self.current_state].keys():
             next_state, output_symbol = self.delta[self.current_state][symbol]
 
-            if self.log_state_transition:
-                print(f"{self.name} DFST: {self.current_state} --- {symbol} ---> {next_state} | Output: {output_symbol}")
+            logging.debug(f"{self.name} DFST: {self.current_state} --- {symbol} ---> {next_state} | Output: {output_symbol}")
 
             self.current_state = next_state
             self.output.append(output_symbol)  # Collect the output

@@ -30,7 +30,6 @@ class DFALexer(Lexer):
         """
         for dfa in self.dfas:
             dfa.reset_to_start()
-            # dfa.log_transitions(True)
 
         while self.current_position < len(self.input_string):
             current_symbol = self.input_string[self.current_position]

@@ -1,4 +1,11 @@
 from typing import Dict, Set
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,   # Set the log level
+    format='%(message)s'  # Log message format
+)
 
 class DFA:
     """
@@ -33,7 +40,6 @@ class DFA:
         self.F = F            # Set of accepting states
         self.name = name
         self.current_state = self.q0
-        self.log_state_transition = False
 
     def reset_to_start(self) -> None:
         """Resets the current state to the initial state."""
@@ -53,8 +59,7 @@ class DFA:
         if symbol in self.delta[self.current_state].keys():
             next_state = self.delta[self.current_state][symbol]
 
-            if self.log_state_transition:
-                print(f"{self.name} DFA: {self.current_state} --- {symbol} ---> {next_state}")
+            logging.debug(f"{self.name} DFA: {self.current_state} --- {symbol} ---> {next_state}")
 
             self.current_state = next_state
         else:
@@ -76,11 +81,3 @@ class DFA:
                 print(f"{e}")
 
         return self.current_state in self.F
-
-    def log_transitions(self, log) -> None:
-        """
-        Enables or disables logging of state transitions.
-
-        :param log: If True, enable logging; if False, disable logging.
-        """
-        self.log_state_transition = log
