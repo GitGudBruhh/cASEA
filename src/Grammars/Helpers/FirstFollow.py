@@ -112,27 +112,31 @@ def first(cfg):
 
     return first_sets
 
+# def follow(cfg: CFG, first_sets: Dict[str, Set[str]]) -> Dict[str, Set[str]]:
+#     follow_sets = {var: set() for var in cfg.V}
+#     follow_sets[cfg.S].add('$')  # Start symbol follows with end of input
+#
+#     def compute_follow(variable: str):
+#         for lhs, productions in cfg.P.items():
+#             for production in productions:
+#                 symbols = production.split()
+#                 if variable in symbols:
+#                     index = symbols.index(variable)
+#                     for sym in symbols[index + 1:]:
+#                         first_of_sym = first_sets[sym]
+#                         follow_sets[variable].update(first_of_sym - {'#'})
+#                         if '#' in first_of_sym:
+#                             continue
+#                         break
+#                     else:
+#                         if lhs != variable:  # Avoid adding FOLLOW of the same variable
+#                             compute_follow(lhs)
+#
+#     for variable in cfg.V:
+#         compute_follow(variable)
+#
+#     return follow_sets
+
 def follow(cfg: CFG, first_sets: Dict[str, Set[str]]) -> Dict[str, Set[str]]:
-    follow_sets = {var: set() for var in cfg.V}
-    follow_sets[cfg.S].add('$')  # Start symbol follows with end of input
-
-    def compute_follow(variable: str):
-        for lhs, productions in cfg.P.items():
-            for production in productions:
-                symbols = production.split()
-                if variable in symbols:
-                    index = symbols.index(variable)
-                    for sym in symbols[index + 1:]:
-                        first_of_sym = first_sets[sym]
-                        follow_sets[variable].update(first_of_sym - {'#'})
-                        if '#' in first_of_sym:
-                            continue
-                        break
-                    else:
-                        if lhs != variable:  # Avoid adding FOLLOW of the same variable
-                            compute_follow(lhs)
-
-    for variable in cfg.V:
-        compute_follow(variable)
-
-    return follow_sets
+    raise NotImplementedError("FOLLOW not implemented")
+    pass
