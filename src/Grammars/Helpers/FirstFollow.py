@@ -16,7 +16,7 @@ def first(cfg):
     :return: A dictionary mapping each variable to its corresponding FIRST set.
     """
 
-    def initialize_non_terms(first_sets, cfg):
+    def initialize_non_terms_FIRST(first_sets, cfg):
         """
         Initialize the FIRST sets for non-terminals based on their immediate terminal productions.
 
@@ -28,13 +28,12 @@ def first(cfg):
         """
         for head, tails in cfg.P.items():
             for tail_string in tails:
-                # TOOD: tail should not be assumed to have single letter V and T
                 symbol = tail_string[0]
                 if symbol in cfg.T:
                     first_sets[head].add(symbol)
                     logging.debug(f'[INIT] Added {symbol} to FIRST({head})')
 
-    def _propagate_non_terms(first_sets, cfg, head, symb):
+    def _propagate_non_terms_FIRST(first_sets, cfg, head, symb):
         """
         Propagate non-terminal FIRST sets to the FIRST set of the given head.
 
@@ -69,7 +68,7 @@ def first(cfg):
         else:
             raise Exception(f'Unknown symbol {symb}')
 
-    def propagate(first_sets, cfg, head, tail):
+    def propagate_FIRST(first_sets, cfg, head, tail):
         """
         Propagate the FIRST sets from the tail of a production rule to the head.
 
@@ -81,7 +80,7 @@ def first(cfg):
         """
         running = False
         for idx, symb in enumerate(tail):
-            is_t_add, is_eps = _propagate_non_terms(first_sets, cfg, head, symb)
+            is_t_add, is_eps = _propagate_non_terms_FIRST(first_sets, cfg, head, symb)
             if is_t_add:
                 running = True
             if not is_eps:
@@ -98,7 +97,7 @@ def first(cfg):
     first_sets = {var: set() for var in cfg.V}
 
     # Initialize FIRST sets for non-terminals
-    initialize_non_terms(first_sets, cfg)
+    initialize_non_terms_FIRST(first_sets, cfg)
 
     # Loop until no change in any FIRST set
     running = True
@@ -106,37 +105,89 @@ def first(cfg):
         running = False
         for head, tails in cfg.P.items():
             for tail in tails:
-                is_modified = propagate(first_sets, cfg, head, tail)
+                is_modified = propagate_FIRST(first_sets, cfg, head, tail)
                 if is_modified:
                     running = True
 
     return first_sets
 
-# def follow(cfg: CFG, first_sets: Dict[str, Set[str]]) -> Dict[str, Set[str]]:
-#     follow_sets = {var: set() for var in cfg.V}
-#     follow_sets[cfg.S].add('$')  # Start symbol follows with end of input
-#
-#     def compute_follow(variable: str):
-#         for lhs, productions in cfg.P.items():
-#             for production in productions:
-#                 symbols = production.split()
-#                 if variable in symbols:
-#                     index = symbols.index(variable)
-#                     for sym in symbols[index + 1:]:
-#                         first_of_sym = first_sets[sym]
-#                         follow_sets[variable].update(first_of_sym - {'#'})
-#                         if '#' in first_of_sym:
-#                             continue
-#                         break
-#                     else:
-#                         if lhs != variable:  # Avoid adding FOLLOW of the same variable
-#                             compute_follow(lhs)
-#
-#     for variable in cfg.V:
-#         compute_follow(variable)
-#
-#     return follow_sets
+def follow(cfg: CFG) -> Dict[str, Set[str]]:
+    def initialize_non_terms_FOLLOW(follow_sets, first_sets, cfg):
+        """
+        Initialize the FOLLOW sets for non-terminals based on their immediate terminal productions.
 
-def follow(cfg: CFG, first_sets: Dict[str, Set[str]]) -> Dict[str, Set[str]]:
-    raise NotImplementedError("FOLLOW not implemented")
-    pass
+        This function populates the FOLLOW sets of non-terminals with terminals that appear
+        as the FOLLOW symbol in their production rules.
+
+        :param follow_sets: A dictionary mapping non-terminals to their FOLLOW sets.
+        :param first_sets: A dictionary mapping non-terminals to their FIRST sets.
+        :param cfg: A CFG object containing the production rules.
+        """
+        for head, tails in cfg.P.items():
+            for tail_string in tails:
+                for idx in range(0, len(tail_string) - 1):
+                    curr_sym = tail_string[idx]
+                    next_sym = tail_string[idx + 1]
+
+                    if curr_sym in cfg.V and next_sym in cfg.T:
+                        follow_sets[curr_sym].add(next_sym)
+                        logging.debug(f'[INIT] Added {next_sym} to FOLLOW({curr_sym})')
+
+                    elif curr_sym in cfg.V and next_sym in cfg.V:
+                        next_idx = idx + 1
+                        while next_idx != len(tail_string):
+                            is_epsilon_possible = False
+                            if '#' in first_sets[next_sym]:
+                                is_epsilon_possible = True
+
+                            tmp_no_eps = first_sets[next_sym] - {'#'}
+                            follow_sets[curr_sym] = follow_sets[curr_sym].union(tmp_no_eps)
+
+                            logging.debug(f'[INIT] Added FIRST({next_sym}) to FOLLOW({curr_sym})')
+
+                            if is_epsilon_possible:
+                                next_idx += 1
+                            else:
+                                break
+
+    def propagate_FOLLOW(follow_sets, cfg, head, tail):
+        """
+        TODO: Write description
+
+        :param follow_sets: A dictionary mapping non-terminals to their FOLLOW sets.
+        :param first_sets: A dictionary mapping non-terminals to their FIRST sets.
+        :param cfg: A CFG object containing the production rules.
+        """
+        is_terminal_added = False
+
+        last_symbol = tail[-1]
+        if last_symbol in cfg.V:
+            if head != last_symbol:
+                for symb in follow_sets[head]:
+                    if symb not in follow_sets[last_symbol]:
+                        follow_sets[last_symbol].add(symb)
+                        is_terminal_added = True
+
+        return is_terminal_added
+
+    # Create empty FOLLOW sets for each non-terminal (add $)
+    follow_sets = {var: set() for var in cfg.V}
+    follow_sets[cfg.S].add('$')
+
+    # Create first sets
+    first_sets = first(cfg)
+
+    # Initialize by adding direct terminals
+    # and also FIRST of non-terminals
+    initialize_non_terms_FOLLOW(follow_sets, first_sets, cfg)
+
+    running = True
+    while running:
+        running = False
+        for head, tails in cfg.P.items():
+            for tail in tails:
+                is_modified = propagate_FOLLOW(follow_sets, cfg, head, tail)
+                if is_modified:
+                    running = True
+
+    return follow_sets

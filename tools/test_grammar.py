@@ -1,126 +1,246 @@
 # test_cfgs.py
 
 from Grammars.CFG import CFG
-from Grammars.Helpers.FirstFollow import first
+from Grammars.Helpers.FirstFollow import first, follow
+from pprint import pprint
 
 cfgs = [
     {
         "name": "Simple Regex Extension",
         "productions": {
-            "R": ["T", "RT"],
-            "T": ["F", "TF"],
-            "F": ["0", "1", "(R)", "F*", "F+"]
+            "<regex>": [
+                ["<term>"],
+                ["<regex>", "<term>"]
+            ],
+            "<term>": [
+                ["<factor>"],
+                ["<term>", "<factor>"]
+            ],
+            "<factor>": [
+                ["0"],
+                ["1"],
+                ["(", "<regex>", ")"],
+                ["<factor>", "*"],
+                ["<factor>", "+"]
+            ]
         },
         "terminals": ["#", "0", "1", "(", ")", "*", "+"],
-        "start_symbol": "R"
+        "start_symbol": "<regex>",
+        "variables": ["<regex>", "<term>", "<factor>"]
     },
     {
         "name": "Arithmetic Expressions",
         "productions": {
-            "E": ["E+T", "E-T", "T", "#"],
-            "T": ["T*F", "T/F", "F"],
-            "F": ["(E)", "i"]
+            "<expr>": [
+                ["<expr>", "+", "<term>"],
+                ["<expr>", "-", "<term>"],
+                ["<term>"],
+                ["#"]
+            ],
+            "<term>": [
+                ["<term>", "*", "<factor>"],
+                ["<term>", "/", "<factor>"],
+                ["<factor>"]
+            ],
+            "<factor>": [
+                ["(", "<expr>", ")"],
+                ["i"]
+            ]
         },
         "terminals": ["#", "+", "-", "*", "/", "(", ")", "i"],
-        "start_symbol": "E"
+        "start_symbol": "<expr>",
+        "variables": ["<expr>", "<term>", "<factor>"]
     },
     {
         "name": "Boolean Expressions",
         "productions": {
-            "B": ["B&A", "B|A", "A", "#"],
-            "A": ["!F", "F"],
-            "F": ["T", "F", "(B)"]
+            "<bool>": [
+                ["<bool>", "&", "<bool>"],
+                ["<bool>", "|", "<bool>"],
+                ["!", "<bool>"],
+                ["(", "<bool>",  ")"],
+                ["T"],
+                ["F"]
+            ],
         },
-        "terminals": ["#", "&", "|", "!", "T", "F", "(", ")"],
-        "start_symbol": "B"
+        "terminals": ["&", "|", "!", "T", "F", "(", ")"],
+        "start_symbol": "<bool>",
+        "variables": ["<bool>"]
     },
     {
         "name": "Simple Statements",
         "productions": {
-            "S": ["iEtS", "iEtSeS", "pE", "#"],
-            "E": ["i", "n"]
+            "<stmt>": [
+                ["i", "E", "t", "<stmt>"],
+                ["i", "E", "t", "e", "<stmt>"],
+                ["p", "<expr>"],
+                ["#"]
+            ],
+            "<expr>": [
+                ["i"],
+                ["n"]
+            ]
         },
         "terminals": ["#", "i", "n", "t", "e", "p"],
-        "start_symbol": "S"
+        "start_symbol": "<stmt>",
+        "variables": ["<stmt>", "<expr>"]
     },
     {
         "name": "List Comprehensions",
         "productions": {
-            "L": ["[EfiR]", "#"],
-            "R": ["i", "R,i"],
-            "E": ["i", "n"]
+            "<list>": [
+                ["[", "<expr>", "f", "<rest>", "]"],
+                ["#"]
+            ],
+            "<rest>": [
+                ["i"],
+                ["<rest>", ",", "i"]
+            ],
+            "<expr>": [
+                ["i"],
+                ["n"]
+            ]
         },
         "terminals": ["#", "[", "]", "f", "i", ",", "n"],
-        "start_symbol": "L"
+        "start_symbol": "<list>",
+        "variables": ["<list>", "<rest>", "<expr>"]
     },
     {
         "name": "Optional Elements",
         "productions": {
-            "A": ["B", "B#"],
-            "B": ["C", "C#"],
-            "C": ["D", "D#"],
-            "D": ["d", "e"]
+            "<opt>": [
+                ["<base>"],
+                ["<base>", "#"]
+            ],
+            "<base>": [
+                ["<choice>"],
+                ["<choice>", "#"]
+            ],
+            "<choice>": [
+                ["<element>"],
+                ["<element>", "#"]
+            ],
+            "<element>": [
+                ["d"],
+                ["e"]
+            ]
         },
         "terminals": ["#", "d", "e"],
-        "start_symbol": "A"
+        "start_symbol": "<opt>",
+        "variables": ["<opt>", "<base>", "<choice>", "<element>"]
     },
     {
         "name": "Nested Structures",
         "productions": {
-            "X": ["Y", "Y#"],
-            "Y": ["(X)", "X)"],
-            "Z": ["z", "Z#"]
+            "<nest>": [
+                ["<inner>"],
+                ["<inner>", "#"]
+            ],
+            "<inner>": [
+                ["(", "<nest>", ")"],
+                ["<nest>", ")"]
+            ],
+            "<leaf>": [
+                ["z"],
+                ["<leaf>", "#"]
+            ]
         },
         "terminals": ["#", "(", ")", "z"],
-        "start_symbol": "X"
+        "start_symbol": "<nest>",
+        "variables": ["<nest>", "<inner>", "<leaf>"]
     },
     {
         "name": "Simple Choices",
         "productions": {
-            "C": ["A|B", "#"],
-            "A": ["a"],
-            "B": ["b"]
+            "<choice>": [
+                ["<optionA>", "|", "<optionB>"],
+                ["#"]
+            ],
+            "<optionA>": [
+                ["a"]
+            ],
+            "<optionB>": [
+                ["b"]
+            ]
         },
         "terminals": ["#", "a", "b", "|"],
-        "start_symbol": "C"
+        "start_symbol": "<choice>",
+        "variables": ["<choice>", "<optionA>", "<optionB>"]
     },
     {
         "name": "Repetitions",
         "productions": {
-            "R": ["A*", "A#"],
-            "A": ["a", "b"]
+            "<repeat>": [
+                ["<element>", "*"],
+                ["<element>", "#"]
+            ],
+            "<element>": [
+                ["a"],
+                ["b"]
+            ]
         },
         "terminals": ["#", "a", "b", "*"],
-        "start_symbol": "R"
+        "start_symbol": "<repeat>",
+        "variables": ["<repeat>", "<element>"]
     },
     {
         "name": "Complex Expressions",
         "productions": {
-            "E": ["E+E", "E*E", "E#"],
-            "T": ["(E)", "i"]
+            "<expr>": [
+                ["<expr>", "+", "<expr>"],
+                ["<expr>", "*", "<expr>"],
+                ["#"]
+            ],
+            "<term>": [
+                ["(", "<expr>", ")"],
+                ["i"]
+            ]
         },
         "terminals": ["#", "+", "*", "(", ")", "i"],
-        "start_symbol": "E"
+        "start_symbol": "<expr>",
+        "variables": ["<expr>", "<term>"]
     },
     {
         "name": "All Epsilon",
         "productions": {
-            "E": ["ABC"],
-            "A": ["AX", "a", "#"],
-            "B": ["BX", "b", "#"],
-            "C": ["CX", "c", "#"],
-            "X": ["XX", "x", "#"],
+            "<expr>": [
+                ["<A>", "<B>", "<C>"],
+            ],
+            "<A>": [
+                ["<A>", "<X>"],
+                ["a"],
+                ["#"]
+            ],
+            "<B>": [
+                ["<B>", "<X>"],
+                ["b"],
+                ["#"]
+            ],
+            "<C>": [
+                ["<C>", "<X>"],
+                ["c"],
+                ["#"]
+            ],
+            "<X>": [
+                ["<X>", "<X>"],
+                ["x"],
+                ["#"]
+            ]
         },
         "terminals": ["#", "a", "b", "c", "x"],
-        "start_symbol": "E"
+        "start_symbol": "<expr>",
+        "variables": ["<expr>", "<A>", "<B>", "<C>", "<X>"]
     }
 ]
 
-
 for cfg in cfgs:
     grammar = CFG(cfg["name"], list(cfg["productions"].keys()), cfg["terminals"], cfg["productions"], cfg["start_symbol"])
-    print(f"{grammar}")
+    grammar.print_grammar()
     first_sets = first(grammar)
-    print("FIRST sets:")
-    for var, first_set in first_sets.items():
-        print(f"{var}: {first_set}")
+    follow_sets = follow(grammar)
+    # print("FIRST sets:")
+    # for var, first_set in first_sets.items():
+    #     print(f"{var}: {first_set}")
+    print("FOLLOW sets:")
+    for var, follow_set in follow_sets.items():
+        print(f"{var}: {follow_set}")
