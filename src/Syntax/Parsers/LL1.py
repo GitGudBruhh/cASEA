@@ -7,19 +7,19 @@ from typing import Dict, List, Set
 
 def first(cfg):
     first_set = {
-        "B": set("a", "("),
-        "C": set("d", "#"),
-        "E": set("d", "#", "b"),
-        "A": set("d", "#", "b", "a", "(")
+        "B": set(("a", "(")),
+        "C": set(("d", "#")),
+        "E": set(("d", "#", "b")),
+        "A": set(("d", "#", "b", "a", "("))
     }
     return first_set
 
 def follow(cfg):
     follow_set = {
-        "B": set("$"),
-        "C": set("b"),
-        "E": set("b", "a", "c"),
-        "A": set("$")
+        "B": set(("$")),
+        "C": set(("b")),
+        "E": set(("b", "a", "(")),
+        "A": set(("$"))
     }
     return follow_set
 
@@ -47,7 +47,8 @@ def LL1(cfg)->Dict:
     '''
     # Initializing empty parse table:
     row = {sym:set() for sym in cfg.T}
-    parse_table = {var: row for var in cfg.V}
+    row["$"] = set()
+    parse_table = {var: row for var in cfg.V} # Dict[str, Dict[str, Set]]
 
     first_sets = first(cfg) # Dict[str, Set[str]]
     follow_sets = follow(cfg) # Dict[str, Set[str]]
@@ -60,18 +61,19 @@ def LL1(cfg)->Dict:
     # code for accumulating parse table:    
     for P in cfg.P.items(): # Each production rule P is of type lhs -> rhs
         lhs = P[0]
+        row = parse_table[lhs]
         for rhs in P[1]:
-            if rhs[0] in cfg.T:
-                parse_table[lhs][rhs[0]].add(rhs)
+            if rhs[0] in cfg.T:  
+                row[rhs[0]].add(rhs)
             else:
                 epsilon_possible = False
                 for terminal in first_sets[rhs[0]]:
-                    parse_table[lhs][terminal].add(rhs)
+                    row[terminal].add(rhs)
                     if terminal == '#':
                         epsilon_possible = True
                 if epsilon_possible:
                     for terminal in follow_sets[lhs]:
-                        parse_table[lhs][terminal].add(rhs)
+                        row[terminal].add(rhs)
         
     return parse_table
 
