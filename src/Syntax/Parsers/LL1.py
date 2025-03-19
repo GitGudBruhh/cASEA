@@ -1,6 +1,7 @@
 from Grammars.CFG import CFG
 from typing import Dict, List, Set
-
+import string
+import copy
 # from Grammars.Helpers.FirstFollow import first, follow #uncomment after first-follow implementation
 
 # LL(1) parser:
@@ -23,8 +24,33 @@ def follow(cfg):
     }
     return follow_set
 
-def remove_left_recursion(cfg):
+def generate_new_alphabet(cfg, all_alphabets):
+    remaining_alphabets = [alphabet for alphabet in all_alphabets if alphabet not in cfg.V]
     pass
+def remove_left_recursion(cfg):
+    all_possible_non_terminals = [x for x in string.ascii_uppercase]
+    remaining_non_terminals = [alphabet for alphabet in all_possible_non_terminals if alphabet not in cfg.V]
+    cfg_copy = CFG(cfg.name , copy.deepcopy(cfg.V), copy.deepcopy(cfg.T), copy.deepcopy(cfg.P), cfg.S)
+    for P in cfg.P.items():
+        lhs = P[0]
+        replacement_alphabet = None
+        for rhs in P[1]:
+            if rhs[0] == lhs:
+                if replacement_alphabet is None:
+                    replacement_alphabet = remaining_non_terminals[0]
+                    cfg_copy.V.append(replacement_alphabet)
+                    cfg_copy.P[replacement_alphabet] = list()
+                    remaining_non_terminals.pop(0)
+                cfg_copy.P[replacement_alphabet].append(rhs[1:] + rhs[0])
+                cfg_copy.P[lhs].remove(rhs)
+        for rhs in P[1]:
+            if rhs[0] != lhs and replacement_alphabet is not None:
+                cfg_copy.P[lhs].remove(rhs)
+                cfg_copy.P[lhs].append(rhs + replacement_alphabet)
+    
+    cfg.V = cfg_copy.V
+    cfg.T = cfg_copy.T
+    cfg.P = cfg_copy.P
 
 def remove_left_factoring(cfg):
     pass
