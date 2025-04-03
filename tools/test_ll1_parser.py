@@ -51,12 +51,36 @@ def check_left_recursion():
             "start_symbol": "R"
         }
 
+    cfg = {
+        "name": "Simple Regex Extension",
+        "productions": {
+            "<regex>": [
+                ["<term>"],
+                ["<regex>", "<term>"]
+            ],
+            "<term>": [
+                ["<factor>"],
+                ["<term>", "<factor>"]
+            ],
+            "<factor>": [
+                ["0"],
+                ["1"],
+                ["(", "<regex>", ")"],
+                ["<factor>", "*"],
+                ["<factor>", "+"]
+            ]
+        },
+        "terminals": ["#", "0", "1", "(", ")", "*", "+"],
+        "start_symbol": "<regex>",
+        "variables": ["<regex>", "<term>", "<factor>"]
+    }
+
     left_recursive_cfg = CFG(cfg["name"], list(cfg["productions"].keys()), cfg["terminals"], cfg["productions"], cfg["start_symbol"])
     print("Before LR removal:")
-    print(f"{left_recursive_cfg}")
+    left_recursive_cfg.print_grammar()
     remove_left_recursion(left_recursive_cfg)
     print("After LR removal:")
-    print(f"{left_recursive_cfg}")
+    left_recursive_cfg.print_grammar()
 
 
 # check_LL1()

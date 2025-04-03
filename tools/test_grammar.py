@@ -2,9 +2,10 @@
 
 from Grammars.CFG import CFG
 from Grammars.Helpers.FirstFollow import first, follow
+from Grammars.Helpers.Recursions import remove_direct_left_recursion, remove_indirect_left_recursion
 from pprint import pprint
 
-cfgs = [
+test_cases = [
     {
         "name": "Simple Regex Extension",
         "productions": {
@@ -233,14 +234,25 @@ cfgs = [
     }
 ]
 
+cfgs = [test_cases[1]]
+
 for cfg in cfgs:
     grammar = CFG(cfg["name"], list(cfg["productions"].keys()), cfg["terminals"], cfg["productions"], cfg["start_symbol"])
     grammar.print_grammar()
-    first_sets = first(grammar)
-    follow_sets = follow(grammar)
+
+    d_l_rec_removed = remove_direct_left_recursion(grammar)
+    d_l_rec_removed.print_grammar()
+
+    ind_l_rec_removed = remove_indirect_left_recursion(d_l_rec_removed)
+    ind_l_rec_removed.print_grammar()
+
+    # first_sets = first(grammar)
+    # follow_sets = follow(grammar)
+
     # print("FIRST sets:")
     # for var, first_set in first_sets.items():
     #     print(f"{var}: {first_set}")
-    print("FOLLOW sets:")
-    for var, follow_set in follow_sets.items():
-        print(f"{var}: {follow_set}")
+
+    # print("FOLLOW sets:")
+    # for var, follow_set in follow_sets.items():
+    #     print(f"{var}: {follow_set}")
