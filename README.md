@@ -8,9 +8,11 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-2. Run the following command to install `sphinx` and other documentation tools
+2. Run the following command to install 
+    - `sphinx` for documentation
+    - `src/` (your local code) as an editable module
 ```
-pip install -r requirements.txt
+pip install -e .
 ```
 
 # What are RST Files?
