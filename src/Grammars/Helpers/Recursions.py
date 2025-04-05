@@ -14,7 +14,7 @@ def remove_direct_left_recursion(cfg: CFG):
     cfg_copy = CFG(cfg.name , copy.deepcopy(cfg.V), copy.deepcopy(cfg.T), {}, cfg.S)
 
     # Create a dummy non terminal to help in replacement
-    replc_str = 'REPLACE'
+    replc_str = 'LEFT-REC-DUMMY'
     replc_idx = 1
 
     # Iterate over each rule
@@ -82,4 +82,33 @@ def remove_direct_left_recursion(cfg: CFG):
 
 
 def remove_indirect_left_recursion(cfg: CFG):
-    pass
+    raise NotImplementedError('Indirect Left Recursion removal')
+
+    # GPT GENERATED - DO NOT USE DIRECTLY
+    # """
+    # Remove indirect left recursion from a context-free grammar (CFG).
+    #
+    # :param cfg: The CFG object from which to remove indirect left recursion.
+    # :return: A new CFG object with indirect left recursion removed.
+    # """
+    # # Create a copy of the original CFG
+    # cfg_copy = CFG(cfg.name, copy.deepcopy(cfg.V), copy.deepcopy(cfg.T), {}, cfg.S)
+    #
+    # # Iterate over each non-terminal in the grammar
+    # for i in range(len(cfg_copy.V)):
+    #     A = cfg_copy.V[i]
+    #
+    #     # Check for indirect left recursion with all previous non-terminals
+    #     for j in range(i):
+    #         B = cfg_copy.V[j]
+    #         # Check if B can lead to A
+    #         if B in cfg_copy.P:
+    #             for production in cfg_copy.P[B]:
+    #                 if production[0] == A:  # Found indirect left recursion
+    #                     # Replace productions of A that lead to B
+    #                     new_productions = []
+    #                     for prod in cfg_copy.P[A]:
+    #                         new_productions.append(prod + production[1:])  # Append the rest of B's production
+    #                     cfg_copy.P[A].extend(new_productions)
+    #
+    # return cfg_copy
