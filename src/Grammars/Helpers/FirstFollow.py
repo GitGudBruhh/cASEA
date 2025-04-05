@@ -26,7 +26,9 @@ def first(cfg):
         :param first_sets: A dictionary mapping non-terminals to their FIRST sets.
         :param cfg: A CFG object containing the production rules.
         """
-        for head, tails in cfg.P.items():
+        for head, list_of_rules in cfg.P.items():
+            tails = [rule.tail for rule in list_of_rules]
+
             for tail_string in tails:
                 symbol = tail_string[0]
                 if symbol in cfg.T:
@@ -103,7 +105,10 @@ def first(cfg):
     running = True
     while running:
         running = False
-        for head, tails in cfg.P.items():
+        for head, list_of_rules in cfg.P.items():
+
+            tails = [rule.tail for rule in list_of_rules]
+
             for tail in tails:
                 is_modified = propagate_FIRST(first_sets, cfg, head, tail)
                 if is_modified:
@@ -123,7 +128,10 @@ def follow(cfg: CFG) -> Dict[str, Set[str]]:
         :param first_sets: A dictionary mapping non-terminals to their FIRST sets.
         :param cfg: A CFG object containing the production rules.
         """
-        for head, tails in cfg.P.items():
+        for head, list_of_rules in cfg.P.items():
+
+            tails = [rule.tail for rule in list_of_rules]
+
             for tail_string in tails:
                 for idx in range(0, len(tail_string) - 1):
                     curr_sym = tail_string[idx]
@@ -184,7 +192,10 @@ def follow(cfg: CFG) -> Dict[str, Set[str]]:
     running = True
     while running:
         running = False
-        for head, tails in cfg.P.items():
+        for head, list_of_rules in cfg.P.items():
+
+            tails = [rule.tail for rule in list_of_rules]
+
             for tail in tails:
                 is_modified = propagate_FOLLOW(follow_sets, cfg, head, tail)
                 if is_modified:

@@ -9,7 +9,7 @@ logging.basicConfig(
 
 class NFA:
     """
-    A class representing a Deterministic Finite Automaton (NFA).
+    A class representing a Non-Deterministic Finite Automaton (NFA).
 
     Attributes:
         Q (Set[int]): A set of states in the NFA.

@@ -1,11 +1,10 @@
 import sys
-# sys.path.append("../src")  # Adjust to the correct path
 from typing import Dict, List, Set
 
 from Grammars.CFG import CFG
 from Syntax.Parsers.LL1 import LL1, remove_direct_left_recursion
 from Syntax.Parsers.Parser import LL1Parser
-
+from Grammars.Helpers.Factor import left_factor
 
 def print_parse_table_old(parse_table, cfg):
     print("Parse Table:")
@@ -25,7 +24,7 @@ def print_parse_table_old(parse_table, cfg):
 def print_parse_table(parse_table, cfg):
     # Get the terminals and add the end-of-input symbol
     terminals = cfg.T + ["$"]
-    
+
     # Calculate the width for formatting
     max_length = max(len(term) for term in terminals) + 2  # Add some padding
     lhs_length = max(len(lhs) for lhs in parse_table.keys()) + 2  # Add padding for LHS
@@ -111,4 +110,3 @@ def check_left_recursion():
 
 
 check_LL1()
-#check_left_recursion()

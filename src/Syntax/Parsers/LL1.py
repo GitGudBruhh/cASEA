@@ -1,6 +1,7 @@
 from Grammars.CFG import CFG
 from Grammars.Helpers.FirstFollow import first, follow
 from Grammars.Helpers.Recursions import remove_direct_left_recursion
+from Grammars.Helpers.Factor import left_factor
 from Syntax.Parsers import Parser
 
 from typing import Dict, List, Set
@@ -29,6 +30,7 @@ def LL1(cfg: CFG) -> Dict:
 
     first_sets = first(cfg) # Dict[str, Set[str]]
     follow_sets = follow(cfg) # Dict[str, Set[str]]
+    print(first_sets, follow_sets)
 
     # update the cfg
     cfg = remove_direct_left_recursion(cfg)

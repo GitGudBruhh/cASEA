@@ -1,6 +1,6 @@
 import copy
 import time
-from Grammars.CFG import CFG
+from Grammars.CFG import CFG, ProdRule
 
 def remove_direct_left_recursion(cfg: CFG):
     """
@@ -18,20 +18,22 @@ def remove_direct_left_recursion(cfg: CFG):
     replc_idx = 1
 
     # Iterate over each rule
-    for head, tails in cfg.P.items():
-        rec_list = []
-        not_rec_list = []
+    for head, list_of_rules in cfg.P.items():
+        tails = [rule.tail for rule in list_of_rules]
+
+        rec_rule_list = []
+        not_rec_rule_list = []
 
         # Create list of recursive and non-recursive tails
         for tail in tails:
             if tail[0] == head:
-                rec_list.append(tail)
+                rec_rule_list.append(ProdRule(head=head, tail=tail))
             else:
-                not_rec_list.append(tail)
+                not_rec_rule_list.append(ProdRule(head=head, tail=tail))
 
         # If there are no left recursions, dont change anything
-        if not rec_list:
-            cfg_copy.P[head] = not_rec_list
+        if not rec_rule_list:
+            cfg_copy.P[head] = not_rec_rule_list
             continue
 
         # Dummy non terminal
@@ -47,8 +49,13 @@ def remove_direct_left_recursion(cfg: CFG):
         #
         # RMVD LEFTREC: A -> bS       (new_tail_1)
         #             : S -> xS | #   (new_tail_2)
-        for rec in rec_list:
-            for no_rec in not_rec_list:
+        for rec_rule in rec_rule_list:
+
+            rec = copy.copy(rec_rule.tail)
+
+            for no_rec_rule in not_rec_rule_list:
+
+                no_rec = copy.copy(no_rec_rule.tail)
 
                 # Special case: Remove trailing '#' from no_rec if it exists
                 while no_rec and no_rec[-1] == '#':
@@ -58,12 +65,12 @@ def remove_direct_left_recursion(cfg: CFG):
                 new_tail_1 = no_rec + [replc_non_term]
                 new_tail_2 = rec[1:] + [replc_non_term]
 
-                # Add new tails
-                if new_tail_1 not in cfg_copy.P[head]:
-                    cfg_copy.P[head].append(new_tail_1)
+                # Add new rules
+                if all(new_tail_1 != rule.tail for rule in cfg_copy.P[head]):
+                    cfg_copy.P[head].append(ProdRule(head=head, tail=new_tail_1))
 
-                if new_tail_2 not in cfg_copy.P[replc_non_term]:
-                    cfg_copy.P[replc_non_term].append(new_tail_2)
+                if all(new_tail_2 != rule.tail for rule in cfg_copy.P[replc_non_term]):
+                    cfg_copy.P[replc_non_term].append(ProdRule(head=replc_non_term, tail=new_tail_2))
 
                 # Add new non terminal
                 if replc_non_term not in cfg_copy.V:
@@ -73,8 +80,8 @@ def remove_direct_left_recursion(cfg: CFG):
                 if '#' not in cfg_copy.T:
                     cfg_copy.T.append('#')
 
-                if '#' not in cfg_copy.P[replc_non_term]:
-                    cfg_copy.P[replc_non_term].append('#')
+                if all(['#'] != rule.tail for rule in cfg_copy.P[replc_non_term]):
+                    cfg_copy.P[replc_non_term].append(ProdRule(head=replc_non_term, tail='#'))
 
         replc_idx += 1
 

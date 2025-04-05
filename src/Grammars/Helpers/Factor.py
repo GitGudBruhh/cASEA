@@ -1,8 +1,10 @@
-from Grammars.CFG import CFG
+from Grammars.CFG import CFG, ProdRule
 from typing import List
 import copy
 
-def find_factor(tails: List[List[str]]):
+def find_factor(list_of_rules: List[ProdRule]):
+
+    tails = [rule.tail for rule in list_of_rules]
 
     # Return if there exists only one tail
     if len(tails) <= 1:
@@ -42,8 +44,8 @@ def left_factor(cfg: CFG):
     replc_idx = 1
 
     # Iterate over each rule
-    for head, tails in cfg.P.items():
-        common_prefix = find_factor(tails)
+    for head, list_of_rules in cfg.P.items():
+        common_prefix = find_factor(list_of_rules)
 
         # Check if a common prefix exists
         if common_prefix is not None and len(common_prefix) > 0:
@@ -52,18 +54,20 @@ def left_factor(cfg: CFG):
             replc_non_term = '<' + replc_str + str(replc_idx) + '>'
             cfg_copy.P.setdefault(replc_non_term, [])
 
-            # Replace the tails of the head
-            cfg_copy.P[head] = common_prefix + [replc_non_term]
+            # Replace the tails of the head with a single tail
+            single_tail = common_prefix + [replc_non_term]
+            cfg_copy.P[head] = [ProdRule(head=head, tail=single_tail)]
 
             # Add the tails of a new dummy head
-            for tail in tails:
+            for rule in list_of_rules:
+                tail = rule.tail
                 new_tail = tail[len(common_prefix):]
 
                 # Special case for epsilon
                 if new_tail == []:
-                    cfg_copy.P[replc_non_term].append(['#'])
+                    cfg_copy.P[replc_non_term].append(ProdRule(head=replc_non_term, tail=['#']))
                 else:
-                    cfg_copy.P[replc_non_term].append(new_tail)
+                    cfg_copy.P[replc_non_term].append(ProdRule(head=replc_non_term, tail=new_tail))
 
 
     return cfg_copy

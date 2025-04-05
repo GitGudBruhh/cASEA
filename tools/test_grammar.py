@@ -1,10 +1,22 @@
 # test_cfgs.py
 
-from Grammars.CFG import CFG
+from Grammars.CFG import CFG, ProdRule
 from Grammars.Helpers.FirstFollow import first, follow
 from Grammars.Helpers.Recursions import remove_direct_left_recursion
 from Grammars.Helpers.Factor import left_factor
 from pprint import pprint
+
+# Function to convert production dictionary to list of ProdRuleCollection
+def convert_productions(prod_dict):
+    prod_rule_collections = {}
+    for head, productions in prod_dict.items():
+        prod_rules = []
+        for production in productions:
+            # Create a production rule for each production alternative
+            prod_rules.append(ProdRule(head=head, tail=production))
+        prod_rule_collections[head] = prod_rules
+    return prod_rule_collections
+
 
 test_cases = [
     {
@@ -254,28 +266,46 @@ test_cases = [
     }
 ]
 
-cfgs = [test_cases[-1]]
+# For this example, let's pick a single test case (for example, the last one)
+cfgs = [test_cases[1]]
 
 for cfg in cfgs:
-    grammar = CFG(cfg["name"], list(cfg["productions"].keys()), cfg["terminals"], cfg["productions"], cfg["start_symbol"])
+    # Convert the productions dictionary to a list of ProdRuleCollection objects.
+    prod_rule_collections = convert_productions(cfg["productions"])
+
+    # Build the CFG using the productions as RuleCollections (ProdRuleCollection)
+    grammar = CFG(
+        name=cfg["name"],
+        V=cfg["variables"],         # use provided variables list
+        T=cfg["terminals"],
+        P=prod_rule_collections,
+        S=cfg["start_symbol"]
+    )
+
+    print("Original Grammar:")
     grammar.print_grammar()
-
-    left_factored = left_factor(grammar)
-    left_factored.print_grammar()
-
-    # d_l_rec_removed = remove_direct_left_recursion(grammar)
-    # d_l_rec_removed.print_grammar()
-    #
-    # ind_l_rec_removed = remove_indirect_left_recursion(d_l_rec_removed)
-    # ind_l_rec_removed.print_grammar()
 
     # first_sets = first(grammar)
     # follow_sets = follow(grammar)
-
+    #
     # print("FIRST sets:")
     # for var, first_set in first_sets.items():
-    #     print(f"{var}: {first_set}")
-
+    #     print(f"    {var}: {first_set}")
+    #
     # print("FOLLOW sets:")
     # for var, follow_set in follow_sets.items():
-    #     print(f"{var}: {follow_set}")
+    #     print(f"    {var}: {follow_set}")
+
+
+    # The following parts are commented out. Uncomment them if you have implemented these helpers.
+    # d_l_rec_removed = remove_direct_left_recursion(grammar)
+    # d_l_rec_removed.print_grammar()
+
+    # ind_l_rec_removed = remove_indirect_left_recursion(d_l_rec_removed)
+    # ind_l_rec_removed.print_grammar()
+
+    # Left factoring example (assuming left_factor returns a new CFG)
+    # left_factored = left_factor(grammar)
+    # print("Left Factored Grammar:")
+    # left_factored.print_grammar()
+

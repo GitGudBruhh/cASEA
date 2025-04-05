@@ -1,6 +1,22 @@
 from typing import Dict, List
 from pprint import pprint
 
+class ProdRule:
+    """
+    Represents a single production rule.
+
+    Attributes:
+        head (str): The non-terminal on the left-hand side.
+        tail (List[str]): The sequence of symbols on the right-hand side.
+        action (callable): The semantic action function for this production.
+    """
+
+    def __init__(self, head, tail, action_function=None, is_literal=False):
+        self.head = head
+        self.tail = tail
+        self.action = action_function
+        self.is_literal = is_literal
+
 class CFG:
     """
     A class representing a Context-Free Grammar (CFG).
@@ -20,7 +36,7 @@ class CFG:
         :param name: Name of the grammar.
         :param V: List of variables (non-terminals).
         :param T: List of terminals.
-        :param P: Dictionary of production rules.
+        :param P: List of ProdRules.
         :param S: Start symbol.
         """
         self.name = name
@@ -41,7 +57,8 @@ class CFG:
         pprint(self.T)
 
         print("Production Rules:")
-        pprint(self.P)
+        for head, prod_rules in self.P.items():
+            print(head, ":", [pr.tail for pr in prod_rules])
 
         print("Start Symbol:")
         pprint(self.S)
