@@ -2,7 +2,8 @@
 
 from Grammars.CFG import CFG
 from Grammars.Helpers.FirstFollow import first, follow
-from Grammars.Helpers.Recursions import remove_direct_left_recursion, remove_indirect_left_recursion
+from Grammars.Helpers.Recursions import remove_direct_left_recursion
+from Grammars.Helpers.Factor import left_factor
 from pprint import pprint
 
 test_cases = [
@@ -231,20 +232,42 @@ test_cases = [
         "terminals": ["#", "a", "b", "c", "x"],
         "start_symbol": "<expr>",
         "variables": ["<expr>", "<A>", "<B>", "<C>", "<X>"]
+    },
+    {
+        "name": "Left Factor Test",
+        "productions": {
+            "<expr>": [
+                ["<A>", "<B>", "+"],
+                ["<A>", "<B>", "-"],
+                ["<A>", "<B>", "*"],
+            ],
+            "<A>": [
+                ["x"]
+            ],
+            "<B>": [
+                ["y"]
+            ],
+        },
+        "terminals": ["*", "-", "+", "y", "x"],
+        "start_symbol": "<expr>",
+        "variables": ["<expr>", "<A>", "<B>"]
     }
 ]
 
-cfgs = [test_cases[1]]
+cfgs = [test_cases[-1]]
 
 for cfg in cfgs:
     grammar = CFG(cfg["name"], list(cfg["productions"].keys()), cfg["terminals"], cfg["productions"], cfg["start_symbol"])
     grammar.print_grammar()
 
-    d_l_rec_removed = remove_direct_left_recursion(grammar)
-    d_l_rec_removed.print_grammar()
+    left_factored = left_factor(grammar)
+    left_factored.print_grammar()
 
-    ind_l_rec_removed = remove_indirect_left_recursion(d_l_rec_removed)
-    ind_l_rec_removed.print_grammar()
+    # d_l_rec_removed = remove_direct_left_recursion(grammar)
+    # d_l_rec_removed.print_grammar()
+    #
+    # ind_l_rec_removed = remove_indirect_left_recursion(d_l_rec_removed)
+    # ind_l_rec_removed.print_grammar()
 
     # first_sets = first(grammar)
     # follow_sets = follow(grammar)

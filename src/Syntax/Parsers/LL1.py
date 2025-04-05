@@ -23,16 +23,16 @@ def LL1(cfg: CFG) -> Dict:
     Thus, each cell must be a Set.
     '''
     # Initializing empty parse table:
-    row = {sym:set() for sym in cfg.T}
+    row = {sym: set() for sym in cfg.T}
     row["$"] = set()
     parse_table = {var: row for var in cfg.V} # Dict[str, Dict[str, Set]]
 
     first_sets = first(cfg) # Dict[str, Set[str]]
     follow_sets = follow(cfg) # Dict[str, Set[str]]
 
-    # update the cfg itself
-    remove_direct_left_recursion(cfg)
-    # remove_left_factoring(cfg)
+    # update the cfg
+    cfg = remove_direct_left_recursion(cfg)
+    left_factor(cfg)
 
     # cfg.P: Production rules. Dict[str, List[str]]
     # code for accumulating parse table:
@@ -53,6 +53,3 @@ def LL1(cfg: CFG) -> Dict:
                         row[terminal].add(rhs)
 
     return parse_table
-
-
-# testing:
