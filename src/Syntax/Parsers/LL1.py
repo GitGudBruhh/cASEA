@@ -1,6 +1,8 @@
 from Grammars.CFG import CFG
 from Grammars.Helpers.FirstFollow import first, follow
+from Grammars.Helpers.Recursions import remove_direct_left_recursion
 from Syntax.Parsers import Parser
+
 from typing import Dict, List, Set
 import string
 import copy
@@ -29,8 +31,8 @@ def LL1(cfg: CFG) -> Dict:
     follow_sets = follow(cfg) # Dict[str, Set[str]]
 
     # update the cfg itself
-    remove_left_recursion(cfg)
-    remove_left_factoring(cfg)
+    remove_direct_left_recursion(cfg)
+    # remove_left_factoring(cfg)
 
     # cfg.P: Production rules. Dict[str, List[str]]
     # code for accumulating parse table:

@@ -1,10 +1,13 @@
 import sys
 # sys.path.append("../src")  # Adjust to the correct path
-from Grammars.CFG import CFG
 from typing import Dict, List, Set
-from Syntax.Parsers.LL1 import LL1, remove_left_recursion
 
-def print_parse_table(parse_table, cfg):
+from Grammars.CFG import CFG
+from Syntax.Parsers.LL1 import LL1, remove_direct_left_recursion
+from Syntax.Parsers.Parser import LL1Parser
+
+
+def print_parse_table_old(parse_table, cfg):
     print("Parse Table:")
     print(" ", end="\t")
     terminals = cfg.T
@@ -19,6 +22,28 @@ def print_parse_table(parse_table, cfg):
             print(cells[terminal], end="\t\t")
         print("\n")
 
+def print_parse_table(parse_table, cfg):
+    # Get the terminals and add the end-of-input symbol
+    terminals = cfg.T + ["$"]
+    
+    # Calculate the width for formatting
+    max_length = max(len(term) for term in terminals) + 2  # Add some padding
+    lhs_length = max(len(lhs) for lhs in parse_table.keys()) + 2  # Add padding for LHS
+
+    # Print the header
+    print("Parse Table:")
+    header = " " * lhs_length + " | " + " | ".join(f"{terminal:<{max_length}}" for terminal in terminals)
+    print(header)
+    print("-" * len(header))  # Print a separator line
+
+    # Print each row of the parse table
+    for lhs, cells in parse_table.items():
+        row = f"{lhs:<{lhs_length}} | "
+        for terminal in terminals:
+            # Format the cell content
+            cell_content = ', '.join(cells.get(terminal, set()))  # Join set elements for better readability
+            row += f"{cell_content:<{max_length}} | "
+        print(row)
 def check_LL1():
 
     cfg = {
@@ -37,6 +62,8 @@ def check_LL1():
     print(f"{grammar}")
     parse_table = LL1(grammar)
     print_parse_table(parse_table, grammar)
+
+    LL1Parser(parse_table, "dba")
 
 def check_left_recursion():
 
@@ -78,10 +105,10 @@ def check_left_recursion():
     left_recursive_cfg = CFG(cfg["name"], list(cfg["productions"].keys()), cfg["terminals"], cfg["productions"], cfg["start_symbol"])
     print("Before LR removal:")
     left_recursive_cfg.print_grammar()
-    remove_left_recursion(left_recursive_cfg)
+    remove_direct_left_recursion(left_recursive_cfg)
     print("After LR removal:")
     left_recursive_cfg.print_grammar()
 
 
-# check_LL1()
-check_left_recursion()
+check_LL1()
+#check_left_recursion()
