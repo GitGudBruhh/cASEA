@@ -1,8 +1,9 @@
 class TOYRISCGenerator:
-    def __init__(self, dfa, initstate, acceptstate, word):
+    def __init__(self, dfa, initstate, acceptingstates, word):
         self.dfa = dfa
         self.initstate = initstate
-        self.acceptstate = acceptstate
+        self.acceptingstates = acceptingstates
+        self.nacceptingstates = len(self.acceptingstates)
         self.word = word
         self.table = []
         self.wordlen = len(word)
@@ -23,7 +24,7 @@ class TOYRISCGenerator:
         self.code = [
             ".data",
             f"initstate: \n    {self.initstate}",
-            f"acceptstate:\n    {self.acceptstate}",
+            f"nacceptingstates: \n    {self.nacceptingstates}",
             f"nrows: \n    {self.nrows}",
             f"ncols:\n    {self.ncols}",
             "table:"
@@ -31,6 +32,10 @@ class TOYRISCGenerator:
 
         for transition in self.table:
             self.code.append(f"    {transition}")
+
+        self.code.append("acceptingstates:")
+        for acceptingstate in self.acceptingstates:
+            self.code.append(f"    {acceptingstate}")
         
         self.code.extend([
             f"wordlen: \n    {self.wordlen}",
@@ -45,23 +50,31 @@ class TOYRISCGenerator:
             "main:",
             f"    load %x0, $initstate, %x1",  # current state in x1
             "    add %x0, %x0, %x2",           # index of symbol in x2
+            "    add %x0, %x0, %x6",           
+            "    add %x0, %x0, %x7",           
             f"    load %x0, $ncols, %x3",      # ncols in x3
             f"    load %x0, $nrows, %x4",      # nrows in x4
-            f"    load %x0, $acceptstate, %x28", # accepting state in x28
+            f"    load %x0, $nacceptingstates, %x28", # accepting state in x28
             f"    load %x0, $wordlen, %x29",    # wordlen in x29
             "loop:",
             "    beq %x2, %x29, exit",
-            "    load %x2, $word, %x3",
+            "    load %x2, $word, %x5",
             "    mul %x1, %x3, %x6",
-            "    add %x6, %x3, %x1",
+            "    add %x6, %x5, %x6",
+            "    load %x6, $table, %x1",
             "    addi %x2, 1, %x2",
             "    jmp loop",
             "exit:",
-            "    beq %x28, %x1, accept",
-            "    add %x0, %x0, %x1",  # storing 0 in %x1 if not accepted
-            "    end",
+            "    beq %x7, %x28, reject",
+            "    load %x7, $acceptingstates, %8",
+            "    beq %x8, %x1, accept",
+            "    addi %x7, 1, %x7", 
+            "    jmp exit",
             "accept:",
-            "    addi %x0, 1, %x1",   # storing 1 in %x1 if accepted
+            "    addi %x0, 1, %x10",   # storing 1 in %x1 if accepted
+            "    end",
+            "reject:",
+            "    add %x0, %x0, %x10",   # storing 0 in %x1 if not accepted
             "    end"
         ])
 
@@ -69,11 +82,13 @@ class TOYRISCGenerator:
 
 
 dfa = {
-    0: {0: 1, 1: 0, 2: 0},
-    1: {0: 1, 1: 0, 2: 1}
+    0: {0: 1, 1: 0, 2: 2},
+    1: {0: 0, 1: 1, 2: 2},
+    2: {0: 1, 1: 2, 2: 0}
 }
 
-toyriscgen = TOYRISCGenerator(dfa, 0, 1, [0, 1,0,1,0,1])
+
+toyriscgen = TOYRISCGenerator(dfa, 2, [0, 2], [0, 1, 2, 2, 0, 0, 2, 0])
 toyriscgen.create_table()  
 code = toyriscgen.generate_TOYRISC()
 
