@@ -1,6 +1,6 @@
 class ParseTreeNode:
 
-    def __init__(self, symbol, value, rule, action):
+    def __init__(self, symbol, value, rule=None, action=None):
 
         self.symbol = symbol
         self.value = value
@@ -28,23 +28,23 @@ class ParseTreeNode:
 
     def __str__(self):
         return self.symbol
-    
+
     def __repr__(self):
         return self.symbol
 
-class ParseTree:    
+class ParseTree:
     def __init__(self, root):
         self.root = root
 
-    def printTree(self):
+    def print_tree(self):
 
-        def printTreeHelper(node, prefix, is_last):
+        def print_tree_helper(node, prefix, is_last):
             # Print the current node's symbol
             print(prefix + ("└── " if is_last else "├── ") + node.symbol)
             prefix += "    " if is_last else "│   "
 
             # Recursively print each child
             for i, child in enumerate(node.children):
-                printTreeHelper(child, prefix, i == len(node.children) - 1)
+                print_tree_helper(child, prefix, i == len(node.children) - 1)
 
-        printTreeHelper(self.root, "", True)
+        print_tree_helper(self.root, "", True)

@@ -4,11 +4,11 @@ from Syntax.Parsers.Parser import LL1Parser
 cfg = {
     "name": "Simple Grammar",
     "productions": {
-        "S": ["F", "(S+F)"], 
-        "F": ["a"]            
+        "S": ["F", "(S+F)"],
+        "F": ["a"]
     },
-    "terminals": ["a", "+", "(", ")"],  
-    "start_symbol": "S" 
+    "terminals": ["a", "+", "(", ")"],
+    "start_symbol": "S"
 }
 
 
@@ -40,7 +40,7 @@ cfg = {
         "F": ["(S)", "i"]    # F produces (S) or id
     },
     "terminals": ["+", "*", "(", ")", "i", "#"],  # Updated terminals
-    "start_symbol": "S" 
+    "start_symbol": "S"
 }
 
 parse_table = {
@@ -78,4 +78,4 @@ parser = LL1Parser(parse_table, grammar)
 tree = parser.parse('i+i*i')
 
 if tree:
-    tree.printTree()
+    tree.print_tree()

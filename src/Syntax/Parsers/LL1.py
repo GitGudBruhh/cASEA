@@ -20,7 +20,7 @@ def LL1(cfg: CFG) -> Dict:
     Each non-terminal(V) will have 1 row containing T(terminals)+1($) number of cells.
     Each cell will have one or more entry of production rule (in case of ambiguous grammar)
     (in class, we just used to put numbers in table, but we gotta put the production rule).
-    However, adding the lhs part of production rule in table is redundant. Thus, we will just add the rhs in each cell.
+    However, adding the head part of production rule in table is redundant. Thus, we will just add the tail in each cell.
     Thus, each cell must be a Set.
     '''
     # Initializing empty parse table:
@@ -32,26 +32,24 @@ def LL1(cfg: CFG) -> Dict:
     follow_sets = follow(cfg) # Dict[str, Set[str]]
     print(first_sets, follow_sets)
 
-    # update the cfg
-    cfg = remove_direct_left_recursion(cfg)
-    left_factor(cfg)
-
     # cfg.P: Production rules. Dict[str, List[str]]
     # code for accumulating parse table:
-    for P in cfg.P.items(): # Each production rule P is of type lhs -> rhs
-        lhs = P[0]
-        row = parse_table[lhs]
-        for rhs in P[1]:
-            if rhs[0] in cfg.T:
-                row[rhs[0]].add(rhs)
+    for head, list_of_prod_rules in cfg.P.items():
+        row = parse_table[head]
+
+        for p_rule in list_of_prod_rules:
+            tail = p_rule.tail
+
+            if tail[0] in cfg.T:
+                row[tail[0]].add(f"{head} -> {''.join(tail)}")
             else:
                 epsilon_possible = False
-                for terminal in first_sets[rhs[0]]:
-                    row[terminal].add(rhs)
+                for terminal in first_sets[tail[0]]:
+                    row[terminal].add(f"{head} -> {''.join(tail)}")
                     if terminal == '#':
                         epsilon_possible = True
                 if epsilon_possible:
-                    for terminal in follow_sets[lhs]:
-                        row[terminal].add(rhs)
+                    for terminal in follow_sets[head]:
+                        row[terminal].add(f"{head} -> {''.join(tail)}")
 
     return parse_table
